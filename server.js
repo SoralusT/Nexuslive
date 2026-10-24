@@ -12,7 +12,7 @@ const ADMIN_USERS = {
     "Soralus": "Soralus700.",
     "Nexus": "Nexus69<3"
 };
-const TIKTOK_USER = "nexusfvl"; // Usuario de TikTok a leer
+const TIKTOK_USER = "salomyn_06"; // Usuario de TikTok a leer
 
 let tiktokLiveConnection = null;
 let topContributors = {};
