@@ -10,7 +10,7 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-const TIKTOK_USER = "nexusfvl"; // Usuario de Nexus
+const TIKTOK_USER = "kouga24._"; // Usuario de Nexus
 let totalLikes = 0;
 let contributors = {};
 let tiktokLiveConnection = null;
