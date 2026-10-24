@@ -1,7 +1,12 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const { WebcastPushConnection } = require('tiktok-live-connector');
+
+// PARCHE APLICADO AQUÍ: Detecta automáticamente la versión de tu librería
+let WebcastPushConnection = require('tiktok-live-connector');
+if (WebcastPushConnection.WebcastPushConnection) {
+    WebcastPushConnection = WebcastPushConnection.WebcastPushConnection;
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -10,7 +15,7 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-const TIKTOK_USER = "kouga24._"; // Usuario de Nexus
+const TIKTOK_USER = "nexusfvl"; // Dejado listo para Nexus
 let totalLikes = 0;
 let contributors = {};
 let tiktokLiveConnection = null;
