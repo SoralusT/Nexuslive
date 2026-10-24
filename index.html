@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus Live Tap Taps</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-app: #08030f; --card-bg: #120a1f; --card-border: #261642;
+            --text-main: #ffffff; --text-muted: #a497b7; --neon-purple: #b026ff;
+            --rank-1: #ffd700; --rank-2: #c0c0c0; --rank-3: #cd7f32;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-app); color: var(--text-main); padding: 15px; overflow-x: hidden; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #170d28 0%, #0d0617 100%); border: 1px solid var(--card-border); border-radius: 20px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .tiktok-logo { width: 45px; height: 45px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 0 15px rgba(176, 38, 255, 0.4); border: 2px solid var(--neon-purple); cursor: pointer; text-decoration: none; color: #fff; }
+        .header-info h1 { font-size: 1.2rem; font-weight: 800; margin-bottom: 2px; cursor: pointer; user-select: none; }
+        .header-info h1 span { color: var(--neon-purple); }
+        .header-info p { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+        .live-dot { width: 8px; height: 8px; background-color: var(--neon-purple); border-radius: 50%; box-shadow: 0 0 8px var(--neon-purple); }
+        .status-badge { background: rgba(20, 10, 35, 0.8); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .card-icon { width: 40px; height: 40px; background: rgba(176, 38, 255, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--neon-purple); font-size: 1.2rem; }
+        .card-title-group h2 { font-size: 1.1rem; font-weight: 800; }
+        .card-title-group p { font-size: 0.8rem; color: var(--text-muted); }
+
+        .top-list { display: flex; flex-direction: column; gap: 10px; }
+        .top-item { display: flex; align-items: center; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 15px; border-radius: 16px; gap: 15px; }
+        .top-rank { font-weight: 900; font-size: 1.1rem; width: 25px; text-align: center; }
+        .rank-1 { color: var(--rank-1); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .rank-2 { color: var(--rank-2); } .rank-3 { color: var(--rank-3); }
+        .avatar { width: 45px; height: 45px; border-radius: 12px; background: var(--card-border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; color: #fff; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { flex-grow: 1; }
+        .user-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 3px; }
+        .user-likes { font-size: 0.8rem; color: var(--text-muted); }
+        .user-likes i { color: var(--neon-purple); font-size: 0.75rem; }
+
+        .total-taps-card { text-align: center; padding: 30px 20px; }
+        .total-title { color: var(--neon-purple); font-size: 0.9rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+        .total-number { font-size: 4.5rem; font-weight: 900; line-height: 1; margin-bottom: 25px; text-shadow: 0 0 30px rgba(176, 38, 255, 0.6); }
+        .milestone-container { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 16px; }
+        .milestone-text { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #231536; border-radius: 10px; }
+        .progress-fill { height: 100%; background: var(--neon-purple); width: 0%; border-radius: 10px; box-shadow: 0 0 10px var(--neon-purple); transition: width 0.3s; }
+
+        .feed-list { display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow: hidden; }
+        .feed-item { display: flex; align-items: center; gap: 15px; animation: slideIn 0.3s ease-out forwards; }
+        .feed-likes-badge { background: rgba(176, 38, 255, 0.15); color: var(--neon-purple); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; margin-left: auto; }
+        @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="https://www.tiktok.com/@nexusfvl?_r=1&_t=ZS-9ApNT646g68" target="_blank" class="tiktok-logo">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+            <div class="header-info">
+                <h1 id="s-t">NEXUS <span>LIVE</span></h1>
+                <p><span class="live-dot"></span> @nexusfvl</p>
+            </div>
+        </div>
+        <div class="status-badge" id="s-b">
+            Esperando<br>Conexión...
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon"><i class="fa-solid fa-trophy"></i></div>
+            <div class="card-title-group"><h2>Top 5</h2><p>Contribuidores</p></div>
+        </div>
+        <div class="top-list" id="t-l"><div style="text-align:center; color:#a497b7;">Sin datos aún</div></div>
+    </div>
+
+    <div class="card total-taps-card">
+        <div class="total-title"><i class="fa-solid fa-heart"></i> TOTAL TAP TAPS</div>
+        <div class="total-number" id="t-t">0</div>
+        <div class="milestone-container">
+            <div class="milestone-text"><span>Progreso Hito</span><span id="m-t">0 / 1,000</span></div>
+            <div class="progress-bar-bg"><div class="progress-fill" id="p-f"></div></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon" style="border-radius: 50%;"><i class="fa-solid fa-satellite-dish"></i></div>
+            <div class="card-title-group"><h2>Live Feed</h2><p>Tap Taps en vivo</p></div>
+        </div>
+        <div class="feed-list" id="f-l"></div>
+    </div>
+
+    <script>
+        const s = io('https://TU-SERVIDOR-RENDER.onrender.com');
+
+        const t = document.getElementById('s-t');
+        let c = 0;
+        let t_id;
+
+        t.addEventListener('click', () => {
+            c++;
+            clearTimeout(t_id);
+            t_id = setTimeout(() => { c = 0; }, 2000); 
+
+            if (c === 5) {
+                c = 0;
+                const u = prompt("Usuario:");
+                if (u) {
+                    const p = prompt("Clave:");
+                    if (p) s.emit('admin_login', { username: u, password: p });
+                }
+            }
+        });
+
+        s.on('alert_msg', (m) => {
+            alert(m);
+            if (m.includes("Conectado")) {
+                document.getElementById('s-b').innerHTML = '<i class="fa-solid fa-bolt" style="color:#ffd700"></i><br><b>En Vivo</b>';
+            }
+        });
+
+        const t_e = document.getElementById('t-t');
+        const t_l = document.getElementById('t-l');
+        const f_l = document.getElementById('f-l');
+
+        function r_t(a) {
+            t_l.innerHTML = '';
+            const b = ['#8bc34a', '#8b5cf6', '#ef4444', '#d946ef', '#3b82f6']; 
+            a.forEach((u, i) => {
+                const bc = b[i % b.length];
+                const ah = u.avatarUrl 
+                    ? `<img src="${u.avatarUrl}">`
+                    : `<span style="background:${bc}; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">${u.nickname.substring(0,2).toUpperCase()}</span>`;
+
+                const h = `
+                    <div class="top-item">
+                        <div class="top-rank rank-${i + 1}">#${i + 1}</div>
+                        <div class="avatar">${ah}</div>
+                        <div class="user-info">
+                            <div class="user-name">${u.nickname}</div>
+                            <div class="user-likes"><i class="fa-solid fa-heart"></i> ${u.likes.toLocaleString()} total</div>
+                        </div>
+                    </div>`;
+                t_l.insertAdjacentHTML('beforeend', h);
+            });
+        }
+
+        s.on('tap_tap', (d) => {
+            t_e.innerText = d.totalLikes.toLocaleString();
+            
+            const cm = Math.floor(d.totalLikes / 1000) * 1000;
+            const nm = cm + 1000;
+            const pr = d.totalLikes - cm;
+            document.getElementById('m-t').innerText = `${d.totalLikes.toLocaleString()} / ${nm.toLocaleString()}`;
+            document.getElementById('p-f').style.width = `${(pr / 1000) * 100}%`;
+
+            const bc = ['#8bc34a', '#8b5cf6', '#ef4444'][Math.floor(Math.random()*3)];
+            const ah = d.avatarUrl 
+                ? `<img src="${d.avatarUrl}">` 
+                : `<span style="background:${bc}; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">${d.nickname.substring(0,2).toUpperCase()}</span>`;
+            
+            f_l.insertAdjacentHTML('afterbegin', `
+                <div class="feed-item">
+                    <div class="avatar" style="border-radius: 50%;">${ah}</div>
+                    <div class="user-info"><div class="user-name">${d.nickname}</div><div class="user-likes">Envió likes</div></div>
+                    <div class="feed-likes-badge">+${d.likes} <i class="fa-solid fa-fire"></i></div>
+                </div>`);
+            if (f_l.children.length > 5) f_l.lastElementChild.remove();
+
+            const st = Object.values(d.top).sort((x, y) => y.likes - x.likes).slice(0, 5);
+            r_t(st);
+        });
+    </script>
+</body>
+</html>
