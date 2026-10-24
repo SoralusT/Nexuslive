@@ -21,7 +21,6 @@
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
         .section-subtitle { font-size: 12px; color: #6b7280; margin-bottom: 15px; }
         
-        /* CAJA DESLIZABLE PARA TODOS LOS CONTRIBUIDORES */
         .top-list { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; color: #6b7280; font-size: 14px; padding-right: 5px; }
         .top-list::-webkit-scrollbar { width: 4px; }
         .top-list::-webkit-scrollbar-thumb { background: #3b0764; border-radius: 4px; }
@@ -42,7 +41,12 @@
 
     <div class="card header-card">
         <div style="display: flex; gap: 15px; align-items: center;">
-            <div style="width: 40px; height: 40px; background: black; border-radius: 50%; display:flex; justify-content:center; align-items:center; border: 1px solid #3b0764; font-size: 20px;">🎵</div>
+            <div style="width: 45px; height: 45px; background: black; border-radius: 50%; display:flex; justify-content:center; align-items:center; border: 1px solid #3b0764; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);">
+                <!-- Logo de TikTok en SVG -->
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.589 6.686a4.793 4.793 0 0 1-3.97-5.997H12v16.114a3.308 3.308 0 0 1-3.303 3.303 3.308 3.308 0 0 1-3.303-3.303 3.308 3.308 0 0 1 3.303-3.303c.18 0 .356.015.527.043v-4.14a7.356 7.356 0 0 0-.527-.019 7.447 7.447 0 0 0-7.447 7.447 7.447 7.447 0 0 0 7.447 7.447 7.447 7.447 0 0 0 7.447-7.447V9.756a8.88 8.88 0 0 0 3.442.704V6.312a4.77 4.77 0 0 1-1.042-.093l.495.467z"/>
+                </svg>
+            </div>
             <div class="title-group">
                 <div class="title-main" id="s-t"><span>NEXUS</span> <span>LIVE</span></div>
                 <div class="subtitle">● @nexusfvl</div>
@@ -51,7 +55,6 @@
         <div class="status-pill" id="status-text">Esperando<br>Conexión...</div>
     </div>
 
-    <!-- TARJETA ACTUALIZADA PARA MOSTRAR A TODOS -->
     <div class="card">
         <div class="section-title">🏆 Ranking en Vivo</div>
         <div class="section-subtitle">Todos los contribuidores</div>
@@ -141,11 +144,10 @@
             if (data.top && data.top.length > 0) {
                 topEl.innerHTML = "";
                 data.top.forEach((user, index) => {
-                    // Colores para los 3 primeros lugares
                     let colorRanking = "white";
-                    if(index === 0) colorRanking = "#fbbf24"; // Oro
-                    else if(index === 1) colorRanking = "#9ca3af"; // Plata
-                    else if(index === 2) colorRanking = "#b45309"; // Bronce
+                    if(index === 0) colorRanking = "#fbbf24";
+                    else if(index === 1) colorRanking = "#9ca3af";
+                    else if(index === 2) colorRanking = "#b45309";
 
                     topEl.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #2e1065; padding-bottom: 5px;">
                         <span style="color: ${colorRanking}; font-weight: bold;">#${index + 1} ${user.uniqueId}</span>
@@ -163,22 +165,6 @@
                     feedEl.removeChild(feedEl.lastChild);
                 }
             }
-        });
-    </script>
-</body>
-</html>
-UpperCase()}</span>`;
-            
-            f_l.insertAdjacentHTML('afterbegin', `
-                <div class="feed-item">
-                    <div class="avatar" style="border-radius: 50%;">${ah}</div>
-                    <div class="user-info"><div class="user-name">${d.nickname}</div><div class="user-likes">Envió likes</div></div>
-                    <div class="feed-likes-badge">+${d.likes} <i class="fa-solid fa-fire"></i></div>
-                </div>`);
-            if (f_l.children.length > 5) f_l.lastElementChild.remove();
-
-            const st = Object.values(d.top).sort((x, y) => y.likes - x.likes).slice(0, 5);
-            r_t(st);
         });
     </script>
 </body>
