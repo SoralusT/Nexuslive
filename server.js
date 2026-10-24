@@ -2,9 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 
-// MODO EMERGENCIA: Importación a prueba de balas
 const TikTok = require('tiktok-live-connector');
-const WebcastConnection = TikTok.WebcastPushConnection || TikTok;
 
 const app = express();
 const server = http.createServer(app);
@@ -28,7 +26,19 @@ function getTop() {
 
 function iniciarConexion() {
     try {
-        const connection = new WebcastConnection(TIKTOK_USER);
+        let connection;
+        // PARCHE DEFINITIVO: Prueba todas las versiones posibles
+        if (typeof TikTok === 'function') {
+            connection = new TikTok(TIKTOK_USER);
+        } else if (typeof TikTok.WebcastPushConnection === 'function') {
+            connection = new TikTok.WebcastPushConnection(TIKTOK_USER);
+        } else if (typeof TikTok.default === 'function') {
+            connection = new TikTok.default(TIKTOK_USER);
+        } else {
+            console.error("No se encontró el constructor compatible.");
+            return;
+        }
+
         connection.connect().then(() => {
             isConnected = true;
             io.emit('tiktokConnected');
