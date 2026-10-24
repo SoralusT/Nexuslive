@@ -9,31 +9,25 @@
     <style>
         body { background-color: #0a0510; color: white; font-family: sans-serif; margin: 0; padding: 15px; }
         .card { background-color: #150a21; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        
         .header-card { display: flex; align-items: center; justify-content: space-between; }
         .title-group { display: flex; flex-direction: column; }
-        .title-main { font-size: 24px; font-weight: bold; font-family: monospace; letter-spacing: 1px; cursor: pointer; }
+        .title-main { font-size: 24px; font-weight: bold; font-family: monospace; letter-spacing: 1px; }
         .title-main span:first-child { color: white; }
         .title-main span:last-child { color: #a855f7; }
         .subtitle { color: #9333ea; font-size: 14px; margin-top: 5px; }
         .status-pill { border: 1px solid #3b0764; border-radius: 10px; padding: 8px 12px; font-size: 12px; color: #a855f7; text-align: center; }
-        
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
         .section-subtitle { font-size: 12px; color: #6b7280; margin-bottom: 15px; }
-        
         .top-list { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; color: #6b7280; font-size: 14px; padding-right: 5px; }
         .top-list::-webkit-scrollbar { width: 4px; }
         .top-list::-webkit-scrollbar-thumb { background: #3b0764; border-radius: 4px; }
-
         .total-taps-container { text-align: center; margin: 20px 0; }
         .total-taps-title { color: #d946ef; font-size: 14px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
         .total-number { font-size: 60px; font-weight: bold; text-shadow: 0 0 20px rgba(217, 70, 239, 0.5); margin-bottom: 20px; }
-        
         .progress-container { background-color: #0a0510; border-radius: 15px; padding: 15px; }
         .progress-header { display: flex; justify-content: space-between; font-size: 12px; color: #d1d5db; margin-bottom: 10px; }
         .progress-bar-bg { background-color: #2e1065; height: 8px; border-radius: 4px; overflow: hidden; }
         .progress-bar { background-color: #d946ef; height: 100%; width: 0%; transition: width 0.3s ease; }
-        
         .feed-list { min-height: 50px; font-size: 14px; color: #9ca3af; display: flex; flex-direction: column; gap: 5px; }
     </style>
 </head>
@@ -42,17 +36,16 @@
     <div class="card header-card">
         <div style="display: flex; gap: 15px; align-items: center;">
             <div style="width: 45px; height: 45px; background: black; border-radius: 50%; display:flex; justify-content:center; align-items:center; border: 1px solid #3b0764; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);">
-                <!-- Logo de TikTok en SVG -->
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19.589 6.686a4.793 4.793 0 0 1-3.97-5.997H12v16.114a3.308 3.308 0 0 1-3.303 3.303 3.308 3.308 0 0 1-3.303-3.303 3.308 3.308 0 0 1 3.303-3.303c.18 0 .356.015.527.043v-4.14a7.356 7.356 0 0 0-.527-.019 7.447 7.447 0 0 0-7.447 7.447 7.447 7.447 0 0 0 7.447 7.447 7.447 7.447 0 0 0 7.447-7.447V9.756a8.88 8.88 0 0 0 3.442.704V6.312a4.77 4.77 0 0 1-1.042-.093l.495.467z"/>
                 </svg>
             </div>
             <div class="title-group">
-                <div class="title-main" id="s-t"><span>NEXUS</span> <span>LIVE</span></div>
+                <div class="title-main"><span>NEXUS</span> <span>LIVE</span></div>
                 <div class="subtitle">● @nexusfvl</div>
             </div>
         </div>
-        <div class="status-pill" id="status-text">Esperando<br>Conexión...</div>
+        <div class="status-pill" id="status-text">Buscando<br>Live...</div>
     </div>
 
     <div class="card">
@@ -88,37 +81,12 @@
     <script>
         const s = io('https://nexuslive-fjtp.onrender.com');
         
-        const titleElement = document.getElementById('s-t');
         const statusText = document.getElementById('status-text');
         const totalTapsEl = document.getElementById('t-t');
         const topEl = document.getElementById('top-container');
         const feedEl = document.getElementById('f-l');
         const progressBar = document.getElementById('p-b');
         const progressText = document.getElementById('progress-text');
-
-        let clickCount = 0;
-        let clickTimer;
-
-        titleElement.addEventListener('click', () => {
-            clickCount++;
-            clearTimeout(clickTimer);
-            
-            if (clickCount === 5) {
-                const user = prompt("Usuario:");
-                if (user) {
-                    const pass = prompt("Contraseña:");
-                    if (pass) {
-                        s.emit('login', { username: user, password: pass });
-                    }
-                }
-                clickCount = 0;
-            }
-            
-            clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
-        });
-
-        s.on('loginSuccess', (msg) => alert("✅ " + msg));
-        s.on('loginError', (msg) => alert("❌ " + msg));
 
         s.on('tiktokConnected', () => {
             statusText.innerHTML = "¡En Vivo!<br>⚡";
@@ -127,7 +95,7 @@
         });
 
         s.on('tiktokDisconnected', () => {
-            statusText.innerHTML = "Esperando<br>Conexión...";
+            statusText.innerHTML = "Buscando<br>Live...";
             statusText.style.color = "#a855f7"; 
             statusText.style.borderColor = "#3b0764";
         });
