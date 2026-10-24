@@ -15,7 +15,7 @@ const io = new Server(server, {
 });
 
 // Usuario a escanear
-const TIKTOK_USER = "nexusfvl";
+const TIKTOK_USER = "zodaga";
 
 // Credenciales (Como no usaste variables de entorno, quedan directas)
 const ADMIN_USERS = {
